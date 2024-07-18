@@ -3,6 +3,7 @@ package com.scm.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -14,6 +15,7 @@ import com.scm.forms.UserForm;
 import com.scm.services.UserService;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 public class PageController {
@@ -67,9 +69,14 @@ public class PageController {
     }
     
     @RequestMapping(value = "/do-register", method = RequestMethod.POST)
-    public String processRegister(@ModelAttribute UserForm userForm, HttpSession session) {
+    public String processRegister(@Valid @ModelAttribute UserForm userForm, BindingResult rBindingResult, HttpSession session) {
         System.out.println("Processing request for registration...");
         System.out.println(userForm);
+        
+        // validate form data
+        if (rBindingResult.hasErrors()) {
+            return "register";
+        }
         
         //UserForm--> User
         // User user = User.builder()
@@ -95,7 +102,9 @@ public class PageController {
         System.out.println("user saved successfully-------------------------------------------------------------------------------------------------------:" + savedUser);
         // add the message:
 
-        Message message = Message.builder().content("Registration Successful").type(MessageType.blue).build();
+        // Message message = Message.builder().content("Registration Successful").type(MessageType.blue).build();
+        // session.setAttribute("message", message);
+        Message message = Message.builder().content("Registration Successful").type(MessageType.green).build();
         session.setAttribute("message", message);
         return "redirect:/register";
     }
